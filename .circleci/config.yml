@@ -100,6 +100,10 @@ jobs:
                 --template-file template.yml \
                 --stack-name myStack \
                 --region us-west-2
+        - run: # install tar utility which is not present in this image but it is required. Please install it to have workflow workspace capability.
+             name: Install tar utility
+             command: |
+               yum install -y tar gzip
         - update_environment
         - destroy_environment
         - create_inventory_file
