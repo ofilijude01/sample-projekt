@@ -136,13 +136,14 @@ workflows:
   setup-ansible-env-workflow:
     jobs:
       - create_infrastructure
+      - say-hello
       #- configure_infrastructure: 
       #    requires:
       #      - create_infrastructure
       
-  say-hello-workflow:
-    jobs:
-      - say-hello
+  #say-hello-workflow:
+  #  jobs:
+  #   - say-hello
   #    - print_hello
   #    - print_world:
   #        requires:
