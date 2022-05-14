@@ -29,16 +29,50 @@ jobs:
       - run: 
           name: "echo an env var that is part of our context"
           command: |
-            #echo $MY_ENV_VAR
+            echo $MY_ENV_VAR
             echo "Here"
+   # Exercise: Config and Deployment
+  create_infrastructure: 
+      docker:
+        - image: amazon/aws-cli #amazon aws-cli image
+      steps:
+        - checkout
+        - run:
+            name: Create Cloudformation Stack
+            command: |
+              aws cloudformation deploy \
+                --template-file template.yml \
+                --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
+                --region us-west-2
+  configure_infrastructure: 
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+              # You can get this ID in the section where you registered the SSH Key
+              fingerprints: ["fc:62:ed:26:6c:b3:e1:ed:cf:42:b5:5a:e1:a2:06:ed"] 
+      - run:
+          name: Install Ansible
+          command: |
+            # Install Ansible
+            sudo apt update
+            sudo apt install software-properties-common
+            sudo add-apt-repository --yes --update ppa:ansible/ansible
+            sudo apt install ansible
+      - run:
+          name: Run Playbook and Configure server
+          command: |
+            # Your command
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
   say-hello-workflow:
     jobs:
-      - say-hello
+      #- say-hello
       - print_hello
       - print_world:
           requires:
             - print_hello
+      - create_infrastructure
