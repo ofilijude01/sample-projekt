@@ -29,7 +29,7 @@ jobs:
       - run: 
           name: "echo an env var that is part of our context"
           command: |
-            echo $MY_ENV_VAR
+            #echo $MY_ENV_VAR
             echo ""Here"
 
 # Invoke jobs via workflows
