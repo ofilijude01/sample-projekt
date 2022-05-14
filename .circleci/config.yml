@@ -41,20 +41,32 @@ jobs:
       - run:
           name: "Say hello"
           command: "echo Hello, World!"
+          
   print_hello:
     docker:
       - image: circleci/node:13.8.0
     steps:
       - run: echo hello
+      - run: echo "THIS IS A SAMPLE TEXT" > ~/output.txt  
+      - persist_to_workspace:
+          root: ~/
+          paths: 
+            - output.txt 
+            
   print_world:
     docker:
       - image: circleci/node:13.8.0
     steps:
+      - attach_workspace:
+          at: ~/
+      - run: echo "Begin"
+      - run: cat ~/output.txt 
       - run: 
-          name: "echo an env var that is part of our context"
+          name: "Print an env var that is part of our context"
           command: |
             echo $MY_ENV_VAR
-            echo "Here"
+            echo "End"
+            
    # Exercise: Config and Deployment
   create_infrastructure: 
       docker:
