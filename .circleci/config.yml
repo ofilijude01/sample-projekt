@@ -30,7 +30,7 @@ jobs:
           name: "echo an env var that is part of our context"
           command: |
             echo $MY_ENV_VAR
-            echo "Here"
+            echo "Here" > Test.txt
    # Exercise: Config and Deployment
   create_infrastructure: 
       docker:
