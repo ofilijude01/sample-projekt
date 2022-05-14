@@ -88,21 +88,19 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
+      - run: export ANSIBLE_HOST_KEY_CHECKING=False
       - attach_workspace:
           at: ~/
       - add_ssh_keys:
-          # 
           fingerprints: 
              - "fc:62:ed:26:6c:b3:e1:ed:cf:42:b5:5a:e1:a2:06:ed"
       - run:
-          name: Install Ansible
+          name: Configure Ansible
           command: |
-            # Install Ansible
              apk add --update ansible
       - run:
           name: Run Playbook and Configure server
           command: |
-            # playbook command
             ansible-playbook -i ~/inventory.txt main.yml
 
 # Invoke jobs via workflows
