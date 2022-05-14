@@ -91,8 +91,9 @@ jobs:
       - attach_workspace:
           at: ~/
       - add_ssh_keys:
-          # You can get this ID in the section where you registered the SSH Key
-          fingerprints: ["fc:62:ed:26:6c:b3:e1:ed:cf:42:b5:5a:e1:a2:06:ed"] 
+          # 
+          fingerprints: 
+             - "fc:62:ed:26:6c:b3:e1:ed:cf:42:b5:5a:e1:a2:06:ed"
       - run:
           name: Install Ansible
           command: |
