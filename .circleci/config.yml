@@ -112,4 +112,3 @@ workflows:
       - configure_infrastructure:
           requires:
             - create_infrastructure
-      
