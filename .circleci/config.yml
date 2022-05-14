@@ -101,7 +101,7 @@ jobs:
       - run:
           name: Run Playbook and Configure server
           command: |
-            ansible-playbook -i ~/inventory.txt main.yml -u ubuntu
+            ansible-playbook -i inventory.txt main.yml -u ubuntu
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
