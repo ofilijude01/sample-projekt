@@ -9,6 +9,9 @@ Resources:
       KeyName: first_key_pair
       ImageId: 'ami-0ee8244746ec5d6d4' # you may need to find out what instance types are available in your region - use https://cloud-images.ubuntu.com/locator/ec2/
       InstanceType: t2.micro
+	  Tags: 
+		 - Key: "Project"
+		   Value: "udacity"
   InstanceSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
