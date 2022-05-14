@@ -2,6 +2,30 @@
 # See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
 
+commands:
+  update_environment:
+      steps:
+        - run:
+            name: Update Cloudformation Stack
+            # ${CIRCLE_WORKFLOW_ID} is a Built-in environment variable 
+            # ${CIRCLE_WORKFLOW_ID:0:5} takes the first 5 chars of the variable CIRCLE_CI_WORKFLOW_ID 
+            when: on_fail
+            command: |
+              aws cloudformation update-stack \
+                --template-body template.yml \
+                --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
+                --region us-west-2
+              
+  destroy_environment:
+      steps:
+        - run:
+            name: Destroy environment
+            # ${CIRCLE_WORKFLOW_ID} is a Built-in environment variable 
+            # ${CIRCLE_WORKFLOW_ID:0:5} takes the first 5 chars of the variable CIRCLE_CI_WORKFLOW_ID 
+            when: on_fail
+            command: |
+              aws cloudformation delete-stack --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5}
+
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
@@ -22,27 +46,16 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - run: echo hello
-      - run: echo "THIS IS A SAMPLE TEXT" > ~/output.txt  
-      - persist_to_workspace:
-          root: ~/
-          paths: 
-            - output.txt 
-            
   print_world:
     docker:
       - image: circleci/node:13.8.0
     steps:
-      - attach_workspace:
-          at: ~/
-      - run: echo "Begin"
-      - run: cat ~/output.txt 
       - run: 
-          name: "Print an env var that is part of our context"
+          name: "echo an env var that is part of our context"
           command: |
             echo $MY_ENV_VAR
-            echo "End"
-  
-  # Exercise: Config and Deployment
+            echo "Here"
+   # Exercise: Config and Deployment
   create_infrastructure: 
       docker:
         - image: amazon/aws-cli #amazon aws-cli image
@@ -55,6 +68,9 @@ jobs:
                 --template-file template.yml \
                 --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
                 --region us-west-2
+        - update_environment
+        - destroy_environment
+
   configure_infrastructure: 
     docker:
       - image: python:3.7-alpine3.11
@@ -75,15 +91,22 @@ jobs:
           name: Run Playbook and Configure server
           command: |
             # Your command
+            ansible-playbook -i inventory main.yml
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
-  say-hello-workflow:
+  #say-hello-workflow:
+  #  jobs:
+  #    - say-hello
+  #    - print_hello
+  #    - print_world:
+  #        requires:
+  #          - print_hello
+
+  setup-ansible-env-workflow:
     jobs:
-      #- say-hello
-      - print_hello
-      - print_world:
-          requires:
-            - print_hello
-      #- create_infrastructure
+      - create_infrastructure
+      #- configure_infrastructure: 
+      #    requires:
+      #      - create_infrastructure
