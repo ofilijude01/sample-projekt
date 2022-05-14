@@ -47,46 +47,21 @@ jobs:
   say-hello:
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
+    # other images: circleci/node:13.8.0
     docker:
       - image: cimg/base:stable
     # Add steps to the job
     # See: https://circleci.com/docs/2.0/configuration-reference/#steps
     steps:
       - checkout
-      - attach_workspace:
-          at: ~/
       - run: echo "Begin"
-      - run: cat ~/inventory.txt 
-      - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
-          
-  print_hello:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - run: echo hello
-      - run: echo "THIS IS A SAMPLE TEXT" > ~/output.txt  
-      - persist_to_workspace:
-          root: ~/
-          paths: 
-            - output.txt 
-            
-  print_world:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - attach_workspace:
-          at: ~/
-      - run: echo "Begin"
-      - run: cat ~/output.txt 
       - run: 
           name: "Print an env var that is part of our context"
           command: |
             echo $MY_ENV_VAR
             echo "End"
             
-   # Exercise: Config and Deployment
+  # Exercise: Config and Deployment
   create_infrastructure: 
       docker:
         - image: amazon/aws-cli #amazon aws-cli image
@@ -113,6 +88,8 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
+      - attach_workspace:
+          at: ~/
       - add_ssh_keys:
               # You can get this ID in the section where you registered the SSH Key
               fingerprints: ["fc:62:ed:26:6c:b3:e1:ed:cf:42:b5:5a:e1:a2:06:ed"] 
@@ -127,8 +104,8 @@ jobs:
       - run:
           name: Run Playbook and Configure server
           command: |
-            # Your command
-            ansible-playbook -i inventory main.yml
+            # playbook command
+            ansible-playbook -i ~/inventory.txt main.yml
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
@@ -136,17 +113,7 @@ workflows:
   setup-ansible-env-workflow:
     jobs:
       - create_infrastructure
-      - say-hello:
+      - configure_infrastructure:
           requires:
             - create_infrastructure
-      #- configure_infrastructure: 
-      #    requires:
-      #      - create_infrastructure
       
-  #say-hello-workflow:
-  #  jobs:
-  #   - say-hello
-  #    - print_hello
-  #    - print_world:
-  #        requires:
-  #          - print_hello
