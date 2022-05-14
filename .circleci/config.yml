@@ -25,6 +25,21 @@ commands:
             when: on_fail
             command: |
               aws cloudformation delete-stack --stack-name myStack
+              
+  create_inventory_file:
+      steps:
+        - run: echo "[all]" > ~/inventory.txt
+        - run:
+            name: create and update ansible inventory file 
+            command: |
+              aws ec2 describe-instances \
+                --query 'Reservations[*].Instances[*].PublicIpAddress' \
+                --filters "Name=tag:Project,Values=udacity" \
+                --output text >> ~/inventory.txt
+        - persist_to_workspace:
+            root: ~/
+            paths: 
+              - inventory.txt 
 
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
@@ -38,6 +53,10 @@ jobs:
     # See: https://circleci.com/docs/2.0/configuration-reference/#steps
     steps:
       - checkout
+      - attach_workspace:
+          at: ~/
+      - run: echo "Begin"
+      - run: cat ~/inventory.txt 
       - run:
           name: "Say hello"
           command: "echo Hello, World!"
@@ -83,6 +102,7 @@ jobs:
                 --region us-west-2
         - update_environment
         - destroy_environment
+        - create_inventory_file
 
   configure_infrastructure: 
     docker:
@@ -109,17 +129,17 @@ jobs:
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
-  #say-hello-workflow:
-  #  jobs:
-  #    - say-hello
-  #    - print_hello
-  #    - print_world:
-  #        requires:
-  #          - print_hello
-
   setup-ansible-env-workflow:
     jobs:
       - create_infrastructure
       #- configure_infrastructure: 
       #    requires:
       #      - create_infrastructure
+      
+  say-hello-workflow:
+    jobs:
+      - say-hello
+  #    - print_hello
+  #    - print_world:
+  #        requires:
+  #          - print_hello
