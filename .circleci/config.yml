@@ -93,7 +93,7 @@ jobs:
           at: ~/
       - add_ssh_keys:
           fingerprints: 
-             - "fc:62:ed:26:6c:b3:e1:ed:cf:42:b5:5a:e1:a2:06:ed"
+             - "78:06:23:25:0b:88:07:91:6c:c1:f9:1a:0a:d8:5b:3c"
       - run:
           name: Configure Ansible
           command: |
